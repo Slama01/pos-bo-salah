@@ -17,15 +17,20 @@ import { useToast } from "@/hooks/use-toast";
 
 // تعريف مخطط التحقق من صحة البيانات
 const customerFormSchema = z.object({
-  name: z.string({ required_error: "الرجاء إدخال اسم العميل" }).min(3, {
-    message: "اسم العميل يجب أن يكون أكثر من 3 أحرف",
+  name: z.string().min(2, {
+    message: "اسم العميل يجب أن يكون أكثر من حرفين",
   }),
-  phone: z.string({ required_error: "الرجاء إدخال رقم الهاتف" })
-    .min(10, { message: "رقم الهاتف يجب أن يكون على الأقل 10 أرقام" }),
-  email: z.string({ required_error: "الرجاء إدخال البريد الإلكتروني" })
-    .email({ message: "الرجاء إدخال بريد إلكتروني صحيح" }),
-  totalPurchases: z.string().transform(val => parseFloat(val)).refine(val => !isNaN(val) && val >= 0, {
-    message: "الرجاء إدخال قيمة صحيحة",
+  email: z.string().email({
+    message: "يرجى إدخال بريد إلكتروني صحيح",
+  }),
+  phone: z.string().min(10, {
+    message: "رقم الهاتف يجب أن يكون على الأقل 10 أرقام",
+  }),
+  address: z.string().min(5, {
+    message: "العنوان يجب أن يكون أكثر من 5 أحرف",
+  }),
+  salesCount: z.string().transform(val => parseInt(val, 10)).refine(val => !isNaN(val) && val >= 0, {
+    message: "يرجى إدخال رقم صحيح",
   }),
 });
 
@@ -40,47 +45,46 @@ export function AddCustomerForm({ onClose, onSave }: AddCustomerFormProps) {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // إعداد نموذج React Hook Form
   const form = useForm<CustomerFormValues>({
     resolver: zodResolver(customerFormSchema),
     defaultValues: {
       name: "",
-      phone: "",
       email: "",
-      totalPurchases: "0",
+      phone: "",
+      address: "",
+      salesCount: "0",
     },
   });
 
   function onSubmit(data: CustomerFormValues) {
     setIsSubmitting(true);
+    
     try {
       // تجهيز بيانات العميل الجديد
       const newCustomer = {
         id: Math.floor(Math.random() * 1000) + 5, // توليد معرف عشوائي
         name: data.name,
-        phone: data.phone,
         email: data.email,
-        totalPurchases: data.totalPurchases,
+        phone: data.phone,
+        address: data.address,
+        salesCount: Number(data.salesCount), // تحويل قيمة data.salesCount إلى رقم
         lastPurchase: new Date().toISOString().split('T')[0], // تاريخ اليوم
       };
 
-      // حفظ البيانات
       onSave(newCustomer);
       
-      // إظهار رسالة نجاح
       toast({
-        title: "تمت العملية بنجاح",
-        description: "تم إضافة العميل بنجاح",
+        title: "تمت الإضافة بنجاح",
+        description: "تم إضافة العميل الجديد",
       });
-
-      // إغلاق النموذج
+      
       onClose();
     } catch (error) {
       console.error("فشل إضافة العميل:", error);
       toast({
         variant: "destructive",
         title: "حدث خطأ",
-        description: "فشل إضافة العميل. الرجاء المحاولة مرة أخرى.",
+        description: "فشل إضافة العميل الجديد. يرجى المحاولة مرة أخرى.",
       });
     } finally {
       setIsSubmitting(false);
@@ -95,23 +99,9 @@ export function AddCustomerForm({ onClose, onSave }: AddCustomerFormProps) {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>اسم العميل</FormLabel>
+              <FormLabel>الاسم</FormLabel>
               <FormControl>
                 <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>رقم الهاتف</FormLabel>
-              <FormControl>
-                <Input type="tel" {...field} dir="ltr" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -125,7 +115,7 @@ export function AddCustomerForm({ onClose, onSave }: AddCustomerFormProps) {
             <FormItem>
               <FormLabel>البريد الإلكتروني</FormLabel>
               <FormControl>
-                <Input type="email" {...field} dir="ltr" />
+                <Input type="email" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -134,19 +124,47 @@ export function AddCustomerForm({ onClose, onSave }: AddCustomerFormProps) {
 
         <FormField
           control={form.control}
-          name="totalPurchases"
+          name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>إجمالي المشتريات (ر.س)</FormLabel>
+              <FormLabel>رقم الهاتف</FormLabel>
               <FormControl>
-                <Input type="number" min="0" step="0.01" {...field} />
+                <Input {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <div className="flex justify-end space-x-2">
+        <FormField
+          control={form.control}
+          name="address"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>العنوان</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="salesCount"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>عدد المشتريات</FormLabel>
+              <FormControl>
+                <Input type="number" min="0" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="flex justify-end space-x-2 pt-4">
           <Button 
             type="button" 
             variant="outline" 
