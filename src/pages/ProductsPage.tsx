@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface Product {
   id: number;
@@ -45,6 +45,7 @@ interface Product {
 }
 
 const ProductsPage = () => {
+  const { toast } = useToast();
   // بيانات المنتجات النموذجية - في التطبيق الحقيقي ستأتي من API
   const [products, setProducts] = useState<Product[]>([
     { id: 1, name: "لابتوب HP", category: "إلكترونيات", price: 3500, stock: 15 },
@@ -157,7 +158,7 @@ const ProductsPage = () => {
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="price" className="text-right">
-                    السعر
+                    السعر (₪)
                   </Label>
                   <Input
                     id="price"
@@ -208,7 +209,7 @@ const ProductsPage = () => {
                   <TableCell className="font-medium">{product.id}</TableCell>
                   <TableCell>{product.name}</TableCell>
                   <TableCell>{product.category}</TableCell>
-                  <TableCell>{product.price} ر.س</TableCell>
+                  <TableCell>{product.price} ₪</TableCell>
                   <TableCell>{product.stock}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
@@ -288,7 +289,7 @@ const ProductsPage = () => {
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="edit-price" className="text-right">
-                  السعر
+                  السعر (₪)
                 </Label>
                 <Input
                   id="edit-price"

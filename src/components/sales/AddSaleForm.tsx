@@ -69,8 +69,9 @@ export function AddSaleForm({ onClose, onSave }: AddSaleFormProps) {
         date: new Date().toISOString().split('T')[0], // تاريخ اليوم
         customer: data.customerName,
         total: parseFloat(data.total.toString()),
-        items: parseInt(data.items.toString()),
+        items: parseInt(data.items.toString(), 10),
         status: data.status,
+        products: [] // إضافة مصفوفة فارغة للمنتجات
       };
 
       // حفظ البيانات
@@ -132,7 +133,7 @@ export function AddSaleForm({ onClose, onSave }: AddSaleFormProps) {
           name="total"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>إجمالي المبلغ (ر.س)</FormLabel>
+              <FormLabel>إجمالي المبلغ (₪)</FormLabel>
               <FormControl>
                 <Input type="number" min="0" step="0.01" {...field} />
               </FormControl>

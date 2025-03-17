@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import SidebarLayout from '@/components/layouts/SidebarLayout';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Pencil, Trash2, User } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -18,14 +18,38 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { AddCustomerForm } from '@/components/customers/AddCustomerForm';
 import { useToast } from "@/hooks/use-toast";
+
+interface Customer {
+  id: number;
+  name: string;
+  phone: string;
+  email: string;
+  totalPurchases: number;
+  lastPurchase: string;
+}
 
 const CustomersPage = () => {
   const { toast } = useToast();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [currentCustomer, setCurrentCustomer] = useState<Customer | null>(null);
+  const [customerToDelete, setCustomerToDelete] = useState<number | null>(null);
+  const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
+  
   // بيانات العملاء النموذجية - في التطبيق الحقيقي ستأتي من API
-  const [customers, setCustomers] = useState([
+  const [customers, setCustomers] = useState<Customer[]>([
     { id: 1, name: "أحمد محمد علي", phone: "0512345678", email: "ahmed@example.com", totalPurchases: 12500, lastPurchase: "2023-10-10" },
     { id: 2, name: "سارة خالد العمري", phone: "0523456789", email: "sara@example.com", totalPurchases: 8700, lastPurchase: "2023-10-05" },
     { id: 3, name: "محمد عبدالله القحطاني", phone: "0534567890", email: "mohammed@example.com", totalPurchases: 5200, lastPurchase: "2023-09-30" },
@@ -41,13 +65,45 @@ const CustomersPage = () => {
     setCustomers([newCustomer, ...customers]);
   };
 
+  const handleEditCustomer = (customer: Customer) => {
+    setCurrentCustomer(customer);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateCustomer = (updatedCustomer: Customer) => {
+    setCustomers(customers.map(c => c.id === updatedCustomer.id ? updatedCustomer : c));
+    setIsEditDialogOpen(false);
+    toast({
+      title: "تم التحديث",
+      description: "تم تحديث بيانات العميل بنجاح",
+    });
+  };
+
   const handleDeleteCustomer = (id: number) => {
-    if (window.confirm("هل أنت متأكد من حذف هذا العميل؟")) {
-      setCustomers(customers.filter(customer => customer.id !== id));
+    setCustomerToDelete(id);
+    setIsDeleteAlertOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (customerToDelete !== null) {
+      setCustomers(customers.filter(customer => customer.id !== customerToDelete));
       toast({
         title: "تم الحذف",
         description: "تم حذف العميل بنجاح",
       });
+      setIsDeleteAlertOpen(false);
+      setCustomerToDelete(null);
+    }
+  };
+
+  const handleViewCustomer = (id: number) => {
+    const customer = customers.find(c => c.id === id);
+    if (customer) {
+      toast({
+        title: "عرض بيانات العميل",
+        description: `تم فتح ملف العميل ${customer.name}`,
+      });
+      // في النسخة الحقيقية يمكن هنا فتح صفحة العميل أو نافذة منبثقة لعرض تفاصيل أكثر
     }
   };
 
@@ -83,16 +139,31 @@ const CustomersPage = () => {
                   <TableCell>{customer.name}</TableCell>
                   <TableCell><a href={`tel:${customer.phone}`} className="text-blue-600 hover:underline">{customer.phone}</a></TableCell>
                   <TableCell><a href={`mailto:${customer.email}`} className="text-blue-600 hover:underline">{customer.email}</a></TableCell>
-                  <TableCell>{customer.totalPurchases} ر.س</TableCell>
+                  <TableCell>{customer.totalPurchases} ₪</TableCell>
                   <TableCell>{customer.lastPurchase}</TableCell>
                   <TableCell className="flex space-x-2">
-                    <Button variant="outline" size="sm">عرض</Button>
-                    <Button variant="outline" size="sm">تعديل</Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleViewCustomer(customer.id)}
+                    >
+                      <User className="h-4 w-4 ml-1" />
+                      عرض
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleEditCustomer(customer)}
+                    >
+                      <Pencil className="h-4 w-4 ml-1" />
+                      تعديل
+                    </Button>
                     <Button 
                       variant="destructive" 
                       size="sm"
                       onClick={() => handleDeleteCustomer(customer.id)}
                     >
+                      <Trash2 className="h-4 w-4 ml-1" />
                       حذف
                     </Button>
                   </TableCell>
@@ -114,6 +185,45 @@ const CustomersPage = () => {
             />
           </DialogContent>
         </Dialog>
+
+        {/* نافذة تعديل بيانات العميل */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle className="text-right">تعديل بيانات العميل</DialogTitle>
+            </DialogHeader>
+            {/* هنا يمكن استخدام نفس نموذج إضافة العميل مع تعديل بسيط لاستقبال بيانات العميل الحالي */}
+            {currentCustomer && (
+              <AddCustomerForm 
+                onClose={() => setIsEditDialogOpen(false)} 
+                onSave={() => {
+                  // يمكن هنا تنفيذ عملية تحديث بيانات العميل
+                  setIsEditDialogOpen(false);
+                  toast({
+                    title: "تم التحديث",
+                    description: "تم تحديث بيانات العميل بنجاح",
+                  });
+                }} 
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* مربع حوار تأكيد الحذف */}
+        <AlertDialog open={isDeleteAlertOpen} onOpenChange={setIsDeleteAlertOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>تأكيد الحذف</AlertDialogTitle>
+              <AlertDialogDescription>
+                هل أنت متأكد من رغبتك في حذف هذا العميل؟ لا يمكن التراجع عن هذا الإجراء.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setCustomerToDelete(null)}>إلغاء</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteConfirm}>تأكيد الحذف</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </SidebarLayout>
   );

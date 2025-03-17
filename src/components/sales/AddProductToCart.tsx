@@ -75,7 +75,7 @@ export function AddProductToCart({ products, onAddToCart }: AddProductToCartProp
       id: Math.floor(Math.random() * 10000),
       productId: parseInt(data.productId, 10),
       productName: selectedProduct.name,
-      quantity: parseInt(data.quantity, 10),
+      quantity: parseInt(data.quantity.toString(), 10),
       price: selectedProduct.price,
     };
 
@@ -106,7 +106,7 @@ export function AddProductToCart({ products, onAddToCart }: AddProductToCartProp
                   <SelectContent>
                     {products.map((product) => (
                       <SelectItem key={product.id} value={product.id.toString()}>
-                        {product.name} - {product.price} ر.س
+                        {product.name} - {product.price} ₪
                       </SelectItem>
                     ))}
                   </SelectContent>

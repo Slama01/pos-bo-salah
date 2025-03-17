@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import SidebarLayout from '@/components/layouts/SidebarLayout';
 import { Button } from '@/components/ui/button';
-import { Plus, Eye, FileText } from 'lucide-react';
+import { Plus, Eye, FileText, Trash2 } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -18,6 +18,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { AddSaleForm } from '@/components/sales/AddSaleForm';
 import { SalesCart, SaleData } from '@/components/sales/SalesCart';
 import { useToast } from "@/hooks/use-toast";
@@ -33,6 +44,8 @@ const SalesPage = () => {
   const { toast } = useToast();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isCartDialogOpen, setIsCartDialogOpen] = useState(false);
+  const [saleToDelete, setSaleToDelete] = useState<number | null>(null);
+  const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
   
   // بيانات المبيعات النموذجية - في التطبيق الحقيقي ستأتي من API
   const [sales, setSales] = useState<SaleData[]>([
@@ -116,27 +129,42 @@ const SalesPage = () => {
     setSales([newSale, ...sales]);
   };
 
-  const handleDeleteSale = (id: number) => {
-    if (window.confirm("هل أنت متأكد من حذف عملية البيع هذه؟")) {
-      setSales(sales.filter(sale => sale.id !== id));
+  const handleDeleteConfirm = () => {
+    if (saleToDelete !== null) {
+      setSales(sales.filter(sale => sale.id !== saleToDelete));
       toast({
         title: "تم الحذف",
         description: "تم حذف عملية البيع بنجاح",
       });
+      setIsDeleteAlertOpen(false);
+      setSaleToDelete(null);
     }
+  };
+
+  const handleDeleteSale = (id: number) => {
+    setSaleToDelete(id);
+    setIsDeleteAlertOpen(true);
   };
 
   const handleViewInvoice = (saleId: number) => {
     const sale = sales.find(s => s.id === saleId);
     if (sale) {
-      // هنا يمكن توجيه المستخدم إلى صفحة الفاتورة
+      // إعداد بيانات الفاتورة
+      const invoiceData = {
+        number: `INV-${new Date().getFullYear()}-${String(sale.id).padStart(3, '0')}`,
+        date: sale.date,
+        customerName: sale.customer,
+        total: sale.total,
+        products: sale.products,
+      };
+      
       toast({
         title: "عرض الفاتورة",
-        description: `جاري فتح فاتورة العميل ${sale.customer}`,
+        description: `تم فتح فاتورة العميل ${sale.customer}`,
       });
       
-      // في الإصدار الحالي سنكتفي بعرض رسالة توضح أن الميزة قيد التطوير
-      alert("سيتم توجيهك إلى صفحة الفاتورة في الإصدار القادم");
+      // في النسخة الحقيقية يمكن توجيه المستخدم لصفحة الفاتورة
+      console.log("Invoice Data:", invoiceData);
     }
   };
 
@@ -171,7 +199,7 @@ const SalesPage = () => {
                   <TableCell className="font-medium">{sale.id}</TableCell>
                   <TableCell>{sale.date}</TableCell>
                   <TableCell>{sale.customer}</TableCell>
-                  <TableCell>{sale.total.toFixed(2)} ر.س</TableCell>
+                  <TableCell>{sale.total.toFixed(2)} ₪</TableCell>
                   <TableCell>{sale.items}</TableCell>
                   <TableCell>
                     <span className={`px-2 py-1 rounded-full text-xs ${
@@ -204,6 +232,7 @@ const SalesPage = () => {
                       size="sm"
                       onClick={() => handleDeleteSale(sale.id)}
                     >
+                      <Trash2 className="ml-1 h-4 w-4" />
                       حذف
                     </Button>
                   </TableCell>
@@ -242,6 +271,22 @@ const SalesPage = () => {
             />
           </DialogContent>
         </Dialog>
+
+        {/* مربع حوار تأكيد الحذف */}
+        <AlertDialog open={isDeleteAlertOpen} onOpenChange={setIsDeleteAlertOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>تأكيد الحذف</AlertDialogTitle>
+              <AlertDialogDescription>
+                هل أنت متأكد من رغبتك في حذف عملية البيع هذه؟ لا يمكن التراجع عن هذا الإجراء.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setSaleToDelete(null)}>إلغاء</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteConfirm}>تأكيد الحذف</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </SidebarLayout>
   );

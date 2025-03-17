@@ -67,7 +67,8 @@ export function AddCustomerForm({ onClose, onSave }: AddCustomerFormProps) {
         email: data.email,
         phone: data.phone,
         address: data.address,
-        salesCount: Number(data.salesCount), // تحويل قيمة data.salesCount إلى رقم
+        salesCount: parseInt(data.salesCount.toString(), 10), // تحويل قيمة data.salesCount إلى رقم
+        totalPurchases: 0, // قيمة افتراضية للمشتريات
         lastPurchase: new Date().toISOString().split('T')[0], // تاريخ اليوم
       };
 

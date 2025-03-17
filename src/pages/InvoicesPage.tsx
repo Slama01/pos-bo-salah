@@ -90,6 +90,7 @@ const InvoicesPage = () => {
       description: `جارِ طباعة الفاتورة ${invoice.number}`,
     });
     // في الإصدار الحقيقي سيتم هنا فتح نافذة الطباعة
+    window.print();
   };
 
   // تنزيل الفاتورة
@@ -103,11 +104,38 @@ const InvoicesPage = () => {
 
   // إنشاء فاتورة جديدة
   const handleCreateInvoice = () => {
+    const newId = invoices.length > 0 ? Math.max(...invoices.map(inv => inv.id)) + 1 : 1;
+    const newInvoice: Invoice = {
+      id: newId,
+      number: `INV-${new Date().getFullYear()}-${String(newId).padStart(3, '0')}`,
+      date: new Date().toISOString().split('T')[0],
+      customerName: "عميل جديد",
+      total: 0,
+      status: "غير مدفوعة",
+      saleId: 0
+    };
+    
+    setInvoices([newInvoice, ...invoices]);
+    
     toast({
-      title: "إنشاء فاتورة جديدة",
-      description: "ستتمكن من إنشاء فاتورة جديدة في الإصدار القادم",
+      title: "تم إنشاء فاتورة جديدة",
+      description: `تم إنشاء الفاتورة رقم ${newInvoice.number} بنجاح`,
     });
-    // في الإصدار الحقيقي سيتم هنا فتح نموذج لإنشاء فاتورة جديدة
+    
+    setSelectedInvoice(newInvoice);
+    setIsViewDialogOpen(true);
+  };
+
+  // حذف فاتورة
+  const handleDeleteInvoice = (id: number) => {
+    if (window.confirm("هل أنت متأكد من حذف هذه الفاتورة؟")) {
+      setInvoices(invoices.filter(invoice => invoice.id !== id));
+      toast({
+        title: "تم الحذف",
+        description: "تم حذف الفاتورة بنجاح",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -116,10 +144,13 @@ const InvoicesPage = () => {
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold tracking-tight">الفواتير</h1>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => toast({
-              title: "طباعة الكل",
-              description: "جارِ طباعة جميع الفواتير",
-            })}>
+            <Button variant="outline" onClick={() => {
+              toast({
+                title: "طباعة الكل",
+                description: "جارِ طباعة جميع الفواتير",
+              });
+              window.print();
+            }}>
               <Printer className="mr-2 h-4 w-4" />
               طباعة الكل
             </Button>
@@ -149,7 +180,7 @@ const InvoicesPage = () => {
                   <TableCell className="font-medium">{invoice.number}</TableCell>
                   <TableCell>{invoice.date}</TableCell>
                   <TableCell>{invoice.customerName}</TableCell>
-                  <TableCell>{invoice.total.toFixed(2)} ر.س</TableCell>
+                  <TableCell>{invoice.total.toFixed(2)} ₪</TableCell>
                   <TableCell>
                     <span className={`px-2 py-1 rounded-full text-xs ${
                       invoice.status === "مدفوعة" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
@@ -182,6 +213,13 @@ const InvoicesPage = () => {
                       >
                         <Download className="ml-1 h-4 w-4" />
                         تنزيل
+                      </Button>
+                      <Button 
+                        variant="destructive" 
+                        size="sm"
+                        onClick={() => handleDeleteInvoice(invoice.id)}
+                      >
+                        حذف
                       </Button>
                     </div>
                   </TableCell>
@@ -236,14 +274,14 @@ const InvoicesPage = () => {
                       <TableRow>
                         <TableCell>منتج تجريبي 1</TableCell>
                         <TableCell>2</TableCell>
-                        <TableCell>500 ر.س</TableCell>
-                        <TableCell>1000 ر.س</TableCell>
+                        <TableCell>500 ₪</TableCell>
+                        <TableCell>1000 ₪</TableCell>
                       </TableRow>
                       <TableRow>
                         <TableCell>منتج تجريبي 2</TableCell>
                         <TableCell>1</TableCell>
-                        <TableCell>1500 ر.س</TableCell>
-                        <TableCell>1500 ر.س</TableCell>
+                        <TableCell>1500 ₪</TableCell>
+                        <TableCell>1500 ₪</TableCell>
                       </TableRow>
                     </TableBody>
                   </Table>
@@ -252,9 +290,9 @@ const InvoicesPage = () => {
                 <div className="flex justify-between border-t pt-2">
                   <div></div>
                   <div className="text-right">
-                    <p>المجموع: {selectedInvoice.total.toFixed(2)} ر.س</p>
-                    <p>الضريبة (15%): {(selectedInvoice.total * 0.15).toFixed(2)} ر.س</p>
-                    <p className="font-bold">الإجمالي: {(selectedInvoice.total * 1.15).toFixed(2)} ر.س</p>
+                    <p>المجموع: {selectedInvoice.total.toFixed(2)} ₪</p>
+                    <p>الضريبة (15%): {(selectedInvoice.total * 0.15).toFixed(2)} ₪</p>
+                    <p className="font-bold">الإجمالي: {(selectedInvoice.total * 1.15).toFixed(2)} ₪</p>
                   </div>
                 </div>
                 
