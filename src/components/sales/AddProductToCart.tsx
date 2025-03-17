@@ -73,9 +73,9 @@ export function AddProductToCart({ products, onAddToCart }: AddProductToCartProp
 
     const cartItem: CartProduct = {
       id: Math.floor(Math.random() * 10000),
-      productId: Number(data.productId),
+      productId: parseInt(data.productId, 10),
       productName: selectedProduct.name,
-      quantity: Number(data.quantity),
+      quantity: parseInt(data.quantity, 10),
       price: selectedProduct.price,
     };
 

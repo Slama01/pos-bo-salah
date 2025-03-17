@@ -68,8 +68,8 @@ export function AddSaleForm({ onClose, onSave }: AddSaleFormProps) {
         id: Math.floor(Math.random() * 1000) + 5, // توليد معرف عشوائي
         date: new Date().toISOString().split('T')[0], // تاريخ اليوم
         customer: data.customerName,
-        total: Number(data.total), // تحويل قيمة data.total إلى رقم
-        items: Number(data.items), // تحويل قيمة data.items إلى رقم
+        total: parseFloat(data.total.toString()),
+        items: parseInt(data.items.toString()),
         status: data.status,
       };
 

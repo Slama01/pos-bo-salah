@@ -40,10 +40,10 @@ export function CartItem({
               +
             </button>
           </div>
-          <p className="text-sm text-gray-600">{price} ر.س</p>
+          <p className="text-sm text-gray-600">{price} ₪</p>
         </div>
       </div>
-      <p className="mx-4 font-medium">{(price * quantity).toFixed(2)} ر.س</p>
+      <p className="mx-4 font-medium">{(price * quantity).toFixed(2)} ₪</p>
       <Button 
         variant="ghost" 
         size="sm"

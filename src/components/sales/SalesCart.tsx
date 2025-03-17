@@ -207,7 +207,7 @@ export function SalesCart({ products, onComplete, onCancel }: SalesCartProps) {
         <div className="space-y-2">
           <div className="flex justify-between">
             <span>المجموع:</span>
-            <span className="font-bold">{calculateTotal().toFixed(2)} ر.س</span>
+            <span className="font-bold">{calculateTotal().toFixed(2)} ₪</span>
           </div>
           <div className="flex justify-between">
             <span>عدد المنتجات:</span>
