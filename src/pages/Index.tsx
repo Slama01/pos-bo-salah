@@ -17,16 +17,41 @@ import SidebarLayout from '@/components/layouts/SidebarLayout';
 import StatCard from '@/components/dashboard/StatCard';
 import RecentSalesCard from '@/components/dashboard/RecentSalesCard';
 import InventoryAlertCard from '@/components/dashboard/InventoryAlertCard';
+import { useAppContext } from '@/contexts/AppContext';
 
 const Index = () => {
   const { toast } = useToast();
+  const { products, sales, dailySummary } = useAppContext();
 
-  // سيتم استبدال هذه البيانات بالبيانات الفعلية من قاعدة البيانات
+  // حساب المنتجات ذات المخزون المنخفض (أقل من 10 قطع)
+  const lowStockProducts = products.filter(product => product.stock < 10).length;
+
+  // إعداد بيانات الإحصائيات
   const stats = [
-    { title: "إجمالي المبيعات اليوم", value: "٤٣٢٠ ر.س", icon: <ShoppingCart className="text-blue-500" />, change: "+12%" },
-    { title: "إجمالي العملاء", value: "١٢٤", icon: <Users className="text-green-500" />, change: "+3%" },
-    { title: "المنتجات", value: "٨٩", icon: <Package className="text-purple-500" />, change: "0%" },
-    { title: "إنذارات المخزون", value: "٥", icon: <Bell className="text-red-500" />, change: "-2" },
+    { 
+      title: "إجمالي المبيعات اليوم", 
+      value: `${dailySummary.totalSales.toFixed(0)} ₪`, 
+      icon: <ShoppingCart className="text-blue-500" />, 
+      change: "+12%" 
+    },
+    { 
+      title: "إجمالي العملاء", 
+      value: `${dailySummary.customerCount}`, 
+      icon: <Users className="text-green-500" />, 
+      change: "+3%" 
+    },
+    { 
+      title: "المنتجات", 
+      value: `${products.length}`, 
+      icon: <Package className="text-purple-500" />, 
+      change: "0%" 
+    },
+    { 
+      title: "إنذارات المخزون", 
+      value: `${lowStockProducts}`, 
+      icon: <Bell className="text-red-500" />, 
+      change: lowStockProducts > 5 ? "+2" : "-2" 
+    },
   ];
 
   return (

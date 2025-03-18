@@ -27,106 +27,23 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { AddSaleForm } from '@/components/sales/AddSaleForm';
-import { SalesCart, SaleData } from '@/components/sales/SalesCart';
+import { SalesCart } from '@/components/sales/SalesCart';
 import { useToast } from "@/hooks/use-toast";
-
-// تعريف أنواع البيانات
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-}
+import { useAppContext } from '@/contexts/AppContext';
 
 const SalesPage = () => {
   const { toast } = useToast();
+  const { products, sales, setSales, processSale } = useAppContext();
+  
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isCartDialogOpen, setIsCartDialogOpen] = useState(false);
   const [saleToDelete, setSaleToDelete] = useState<number | null>(null);
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
-  
-  // بيانات المبيعات النموذجية - في التطبيق الحقيقي ستأتي من API
-  const [sales, setSales] = useState<SaleData[]>([
-    { 
-      id: 1, 
-      date: "2023-10-15", 
-      customer: "أحمد محمد", 
-      total: 4500, 
-      items: 3, 
-      status: "مكتملة",
-      products: [
-        { id: 101, productId: 1, productName: "لابتوب HP", quantity: 1, price: 3500 },
-        { id: 102, productId: 2, productName: "سماعات بلوتوث", quantity: 2, price: 500 }
-      ]
-    },
-    { 
-      id: 2, 
-      date: "2023-10-14", 
-      customer: "سارة علي", 
-      total: 2700, 
-      items: 5, 
-      status: "مكتملة",
-      products: [
-        { id: 103, productId: 4, productName: "هاتف ذكي", quantity: 1, price: 2000 },
-        { id: 104, productId: 2, productName: "سماعات بلوتوث", quantity: 2, price: 200 },
-        { id: 105, productId: 3, productName: "كرسي مكتب", quantity: 1, price: 300 }
-      ]
-    },
-    { 
-      id: 3, 
-      date: "2023-10-13", 
-      customer: "محمد خالد", 
-      total: 1200, 
-      items: 2, 
-      status: "معلقة",
-      products: [
-        { id: 106, productId: 5, productName: "طاولة خشبية", quantity: 1, price: 650 },
-        { id: 107, productId: 3, productName: "كرسي مكتب", quantity: 1, price: 550 }
-      ]
-    },
-    { 
-      id: 4, 
-      date: "2023-10-12", 
-      customer: "فاطمة عمر", 
-      total: 3450, 
-      items: 4, 
-      status: "مكتملة",
-      products: [
-        { id: 108, productId: 4, productName: "هاتف ذكي", quantity: 1, price: 2000 },
-        { id: 109, productId: 2, productName: "سماعات بلوتوث", quantity: 3, price: 150 },
-        { id: 110, productId: 1, productName: "لابتوب HP", quantity: 1, price: 1000 }
-      ]
-    },
-    { 
-      id: 5, 
-      date: "2023-10-10", 
-      customer: "خالد سعيد", 
-      total: 800, 
-      items: 1, 
-      status: "ملغية",
-      products: [
-        { id: 111, productId: 3, productName: "كرسي مكتب", quantity: 1, price: 800 }
-      ]
-    },
-  ]);
-
-  // بيانات المنتجات النموذجية - في التطبيق الحقيقي ستأتي من API
-  const [products, setProducts] = useState<Product[]>([
-    { id: 1, name: "لابتوب HP", price: 3500 },
-    { id: 2, name: "سماعات بلوتوث", price: 200 },
-    { id: 3, name: "كرسي مكتب", price: 450 },
-    { id: 4, name: "هاتف ذكي", price: 2000 },
-    { id: 5, name: "طاولة خشبية", price: 650 },
-  ]);
 
   const handleAddSale = () => {
     setIsCartDialogOpen(true);
-  };
-
-  const handleSaveSale = (newSale: any) => {
-    setSales([newSale, ...sales]);
   };
 
   const handleDeleteConfirm = () => {
@@ -250,7 +167,10 @@ const SalesPage = () => {
             </DialogHeader>
             <AddSaleForm 
               onClose={() => setIsAddDialogOpen(false)} 
-              onSave={handleSaveSale} 
+              onSave={(newSale) => {
+                processSale(newSale);
+                setIsAddDialogOpen(false);
+              }} 
             />
           </DialogContent>
         </Dialog>
@@ -264,7 +184,7 @@ const SalesPage = () => {
             <SalesCart 
               products={products}
               onComplete={(saleData) => {
-                setSales([saleData, ...sales]);
+                processSale(saleData);
                 setIsCartDialogOpen(false);
               }}
               onCancel={() => setIsCartDialogOpen(false)}

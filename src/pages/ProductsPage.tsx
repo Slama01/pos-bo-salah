@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import SidebarLayout from '@/components/layouts/SidebarLayout';
 import { Button } from '@/components/ui/button';
@@ -35,26 +34,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-
-interface Product {
-  id: number;
-  name: string;
-  category: string;
-  price: number;
-  stock: number;
-}
+import { useAppContext, Product } from '@/contexts/AppContext';
 
 const ProductsPage = () => {
   const { toast } = useToast();
-  // بيانات المنتجات النموذجية - في التطبيق الحقيقي ستأتي من API
-  const [products, setProducts] = useState<Product[]>([
-    { id: 1, name: "لابتوب HP", category: "إلكترونيات", price: 3500, stock: 15 },
-    { id: 2, name: "سماعات بلوتوث", category: "إلكترونيات", price: 200, stock: 50 },
-    { id: 3, name: "كرسي مكتب", category: "أثاث", price: 450, stock: 8 },
-    { id: 4, name: "هاتف ذكي", category: "إلكترونيات", price: 2000, stock: 25 },
-    { id: 5, name: "طاولة خشبية", category: "أثاث", price: 650, stock: 5 },
-  ]);
-
+  const { products, setProducts } = useAppContext();
+  
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
