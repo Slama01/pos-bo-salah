@@ -29,7 +29,7 @@ const customerFormSchema = z.object({
   address: z.string().min(5, {
     message: "العنوان يجب أن يكون أكثر من 5 أحرف",
   }),
-  salesCount: z.string().transform(val => parseInt(val, 10)).refine(val => !isNaN(val) && val >= 0, {
+  salesCount: z.coerce.number().min(0, {
     message: "يرجى إدخال رقم صحيح",
   }),
 });
@@ -52,7 +52,7 @@ export function AddCustomerForm({ onClose, onSave }: AddCustomerFormProps) {
       email: "",
       phone: "",
       address: "",
-      salesCount: "0",
+      salesCount: 0,
     },
   });
 
@@ -67,7 +67,7 @@ export function AddCustomerForm({ onClose, onSave }: AddCustomerFormProps) {
         email: data.email,
         phone: data.phone,
         address: data.address,
-        salesCount: parseInt(data.salesCount.toString(), 10), // تحويل قيمة data.salesCount إلى رقم
+        salesCount: data.salesCount, // الآن هذا رقم بالفعل
         totalPurchases: 0, // قيمة افتراضية للمشتريات
         lastPurchase: new Date().toISOString().split('T')[0], // تاريخ اليوم
       };
