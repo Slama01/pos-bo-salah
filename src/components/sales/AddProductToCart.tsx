@@ -39,9 +39,7 @@ export interface CartProduct {
 // مخطط التحقق
 const addProductSchema = z.object({
   productId: z.string().min(1, { message: "الرجاء اختيار منتج" }),
-  quantity: z.string().transform(val => parseInt(val, 10)).refine(val => !isNaN(val) && val > 0, {
-    message: "الرجاء إدخال كمية صحيحة",
-  }),
+  quantity: z.coerce.number().min(1, { message: "الرجاء إدخال كمية صحيحة" }),
 });
 
 type AddProductFormValues = z.infer<typeof addProductSchema>;
@@ -58,7 +56,7 @@ export function AddProductToCart({ products, onAddToCart }: AddProductToCartProp
     resolver: zodResolver(addProductSchema),
     defaultValues: {
       productId: "",
-      quantity: "1",
+      quantity: 1,
     },
   });
 
@@ -75,12 +73,12 @@ export function AddProductToCart({ products, onAddToCart }: AddProductToCartProp
       id: Math.floor(Math.random() * 10000),
       productId: parseInt(data.productId, 10),
       productName: selectedProduct.name,
-      quantity: parseInt(data.quantity.toString(), 10),
+      quantity: data.quantity,
       price: selectedProduct.price,
     };
 
     onAddToCart(cartItem);
-    form.reset({ productId: "", quantity: "1" });
+    form.reset({ productId: "", quantity: 1 });
     setSelectedProduct(null);
   };
 
@@ -123,7 +121,12 @@ export function AddProductToCart({ products, onAddToCart }: AddProductToCartProp
               <FormItem>
                 <FormLabel>الكمية</FormLabel>
                 <FormControl>
-                  <Input type="number" min="1" {...field} />
+                  <Input 
+                    type="number" 
+                    min="1" 
+                    {...field} 
+                    onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

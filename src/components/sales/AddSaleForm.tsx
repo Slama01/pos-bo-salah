@@ -27,10 +27,10 @@ const saleFormSchema = z.object({
   customerName: z.string({ required_error: "الرجاء إدخال اسم العميل" }).min(2, {
     message: "اسم العميل يجب أن يكون أكثر من حرفين",
   }),
-  items: z.string().transform(val => parseInt(val, 10)).refine(val => !isNaN(val) && val > 0, {
+  items: z.coerce.number().min(1, {
     message: "الرجاء إدخال عدد صحيح للمنتجات",
   }),
-  total: z.string().transform(val => parseFloat(val)).refine(val => !isNaN(val) && val > 0, {
+  total: z.coerce.number().min(1, {
     message: "الرجاء إدخال قيمة صحيحة للمبلغ",
   }),
   status: z.enum(["مكتملة", "معلقة", "ملغية"], {
@@ -54,8 +54,8 @@ export function AddSaleForm({ onClose, onSave }: AddSaleFormProps) {
     resolver: zodResolver(saleFormSchema),
     defaultValues: {
       customerName: "",
-      items: "1",
-      total: "",
+      items: 1,
+      total: 0,
       status: "مكتملة",
     },
   });
@@ -68,8 +68,8 @@ export function AddSaleForm({ onClose, onSave }: AddSaleFormProps) {
         id: Math.floor(Math.random() * 1000) + 5, // توليد معرف عشوائي
         date: new Date().toISOString().split('T')[0], // تاريخ اليوم
         customer: data.customerName,
-        total: parseFloat(data.total.toString()),
-        items: parseInt(data.items.toString(), 10),
+        total: data.total,
+        items: data.items,
         status: data.status,
         products: [] // إضافة مصفوفة فارغة للمنتجات
       };
@@ -121,7 +121,12 @@ export function AddSaleForm({ onClose, onSave }: AddSaleFormProps) {
             <FormItem>
               <FormLabel>عدد المنتجات</FormLabel>
               <FormControl>
-                <Input type="number" min="1" {...field} />
+                <Input 
+                  type="number" 
+                  min="1" 
+                  {...field} 
+                  onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -135,7 +140,13 @@ export function AddSaleForm({ onClose, onSave }: AddSaleFormProps) {
             <FormItem>
               <FormLabel>إجمالي المبلغ (₪)</FormLabel>
               <FormControl>
-                <Input type="number" min="0" step="0.01" {...field} />
+                <Input 
+                  type="number" 
+                  min="0" 
+                  step="0.01" 
+                  {...field}
+                  onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
