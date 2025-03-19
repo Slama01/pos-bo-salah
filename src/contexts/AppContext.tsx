@@ -18,6 +18,19 @@ export interface DailySummary {
   customerCount: number;
 }
 
+export interface CustomerDebt {
+  id: number;
+  customerId: number;
+  customerName: string;
+  amount: number;
+  date: string;
+  dueDate: string;
+  status: "معلق" | "مدفوع جزئياً" | "مدفوع بالكامل";
+  saleId: number;
+  remainingAmount: number;
+  description?: string;
+}
+
 interface AppContextType {
   products: Product[];
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
@@ -26,6 +39,10 @@ interface AppContextType {
   dailySummary: DailySummary;
   updateDailySummary: () => void;
   processSale: (sale: SaleData) => void;
+  customerDebts: CustomerDebt[];
+  setCustomerDebts: React.Dispatch<React.SetStateAction<CustomerDebt[]>>;
+  addCustomerDebt: (debt: Omit<CustomerDebt, "id">) => void;
+  updateDebtStatus: (id: number, status: CustomerDebt["status"], paidAmount?: number) => void;
 }
 
 const defaultSummary: DailySummary = {
@@ -112,7 +129,85 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     },
   ]);
 
+  // بيانات ديون العملاء
+  const [customerDebts, setCustomerDebts] = useState<CustomerDebt[]>([
+    {
+      id: 1,
+      customerId: 101,
+      customerName: "أحمد محمد",
+      amount: 2500,
+      date: "2023-10-05",
+      dueDate: "2023-11-05",
+      status: "معلق",
+      saleId: 6,
+      remainingAmount: 2500,
+      description: "مشتريات أثاث منزلي"
+    },
+    {
+      id: 2,
+      customerId: 102,
+      customerName: "خالد سعيد",
+      amount: 1800,
+      date: "2023-09-20",
+      dueDate: "2023-10-20",
+      status: "مدفوع جزئياً",
+      saleId: 7,
+      remainingAmount: 800,
+      description: "أجهزة إلكترونية"
+    },
+    {
+      id: 3,
+      customerId: 103,
+      customerName: "سارة علي",
+      amount: 3200,
+      date: "2023-10-10",
+      dueDate: "2023-11-10",
+      status: "معلق",
+      saleId: 8,
+      remainingAmount: 3200,
+      description: "لوازم مكتبية"
+    }
+  ]);
+
   const [dailySummary, setDailySummary] = useState<DailySummary>(defaultSummary);
+
+  // إضافة دين جديد للعميل
+  const addCustomerDebt = (debt: Omit<CustomerDebt, "id">) => {
+    const newDebt: CustomerDebt = {
+      ...debt,
+      id: Math.floor(Math.random() * 1000) + customerDebts.length + 1
+    };
+    
+    setCustomerDebts(prevDebts => [...prevDebts, newDebt]);
+  };
+
+  // تحديث حالة الدين
+  const updateDebtStatus = (id: number, status: CustomerDebt["status"], paidAmount: number = 0) => {
+    setCustomerDebts(prevDebts => prevDebts.map(debt => {
+      if (debt.id === id) {
+        let remainingAmount = debt.remainingAmount;
+        
+        if (paidAmount > 0) {
+          remainingAmount = Math.max(0, debt.remainingAmount - paidAmount);
+        }
+        
+        // تحديث الحالة بناءً على المبلغ المتبقي
+        let newStatus = status;
+        if (remainingAmount === 0) {
+          newStatus = "مدفوع بالكامل";
+        } else if (remainingAmount < debt.amount) {
+          newStatus = "مدفوع جزئياً";
+        }
+        
+        return {
+          ...debt,
+          status: newStatus,
+          remainingAmount
+        };
+      }
+      return debt;
+    }));
+  };
 
   // تحديث الملخص اليومي
   const updateDailySummary = () => {
@@ -149,7 +244,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setSales(prevSales => [sale, ...prevSales]);
     
     // تحديث المخزون
-    if (sale.status === "مكتملة") {
+    if (sale.status === "مكتملة" || sale.status === "آجل") {
       const updatedProducts = [...products];
       
       sale.products.forEach(saleProduct => {
@@ -163,6 +258,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
       
       setProducts(updatedProducts);
+    }
+    
+    // إذا كانت عملية البيع آجلة، أضف إلى ديون العملاء
+    if (sale.status === "آجل") {
+      addCustomerDebt({
+        customerId: Math.floor(Math.random() * 1000) + 100,
+        customerName: sale.customer,
+        amount: sale.total,
+        date: sale.date,
+        dueDate: new Date(new Date(sale.date).setMonth(new Date(sale.date).getMonth() + 1)).toISOString().split('T')[0],
+        status: "معلق",
+        saleId: sale.id,
+        remainingAmount: sale.total,
+        description: `مبيعات آجلة: ${sale.products.map(p => p.productName).join(', ')}`
+      });
     }
     
     // تحديث الملخص اليومي
@@ -183,7 +293,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setSales, 
         dailySummary, 
         updateDailySummary,
-        processSale
+        processSale,
+        customerDebts,
+        setCustomerDebts,
+        addCustomerDebt,
+        updateDebtStatus
       }}
     >
       {children}
