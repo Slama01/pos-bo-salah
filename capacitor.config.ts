@@ -7,7 +7,6 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: {
     androidScheme: 'https',
-    // إزالة عنوان URL المطور للإنتاج
   },
   // إعدادات iOS
   ios: {
@@ -17,6 +16,10 @@ const config: CapacitorConfig = {
   android: {
     backgroundColor: '#FFFFFF',
   },
+  // إضافة إعدادات Windows لتطبيق سطح المكتب
+  windows: {
+    backgroundColor: '#FFFFFF',
+  }
 };
 
 export default config;

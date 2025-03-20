@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 // تعريف الأنواع
@@ -201,3 +202,6 @@ export const useApp = () => {
   }
   return context;
 };
+
+// يضاف هذا السطر لتوافق المكونات التي تستخدم useAppContext
+export const useAppContext = useApp;
