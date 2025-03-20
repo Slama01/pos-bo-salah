@@ -6,8 +6,8 @@ const config: CapacitorConfig = {
   appName: 'نظام إدارة المبيعات',
   webDir: 'dist',
   server: {
-    url: 'https://759c682d-0d1e-47ba-a6cb-8be8a870e7d9.lovableproject.com?forceHideBadge=true',
-    cleartext: true
+    androidScheme: 'https',
+    // إزالة عنوان URL المطور للإنتاج
   },
   // إعدادات iOS
   ios: {
