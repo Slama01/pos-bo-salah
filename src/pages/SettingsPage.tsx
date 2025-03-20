@@ -4,12 +4,15 @@ import SidebarLayout from '@/components/layouts/SidebarLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DemoModeSettings } from '@/components/settings/DemoModeSettings';
 import { UserManagement } from '@/components/settings/UserManagement';
+import AutoBackupSettings from '@/components/settings/AutoBackupSettings';
+import LanguageSettings from '@/components/settings/LanguageSettings';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   Settings, 
   CreditCard, 
@@ -19,11 +22,15 @@ import {
   Globe, 
   Phone, 
   Mail, 
-  ChevronLeft 
+  ChevronLeft,
+  HardDrive,
+  Languages,
+  Printer
 } from 'lucide-react';
 
 const SettingsPage = () => {
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const handleSaveGeneralSettings = () => {
     toast({
@@ -43,11 +50,11 @@ const SettingsPage = () => {
     <SidebarLayout>
       <div className="flex flex-col p-6 space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold tracking-tight">الإعدادات</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('settings')}</h1>
         </div>
 
         <Tabs defaultValue="general" className="w-full">
-          <TabsList className="grid grid-cols-5 w-full mb-6">
+          <TabsList className="grid grid-cols-7 w-full mb-6">
             <TabsTrigger value="general" className="flex items-center">
               <Settings className="ml-2 h-4 w-4" />
               <span>عام</span>
@@ -55,6 +62,14 @@ const SettingsPage = () => {
             <TabsTrigger value="company" className="flex items-center">
               <Building className="ml-2 h-4 w-4" />
               <span>الشركة</span>
+            </TabsTrigger>
+            <TabsTrigger value="language" className="flex items-center">
+              <Languages className="ml-2 h-4 w-4" />
+              <span>اللغة</span>
+            </TabsTrigger>
+            <TabsTrigger value="backup" className="flex items-center">
+              <HardDrive className="ml-2 h-4 w-4" />
+              <span>النسخ الاحتياطي</span>
             </TabsTrigger>
             <TabsTrigger value="billing" className="flex items-center">
               <CreditCard className="ml-2 h-4 w-4" />
@@ -222,6 +237,16 @@ const SettingsPage = () => {
                 </Button>
               </div>
             </Card>
+          </TabsContent>
+
+          {/* Language Settings */}
+          <TabsContent value="language" className="space-y-6">
+            <LanguageSettings />
+          </TabsContent>
+
+          {/* Backup Settings */}
+          <TabsContent value="backup" className="space-y-6">
+            <AutoBackupSettings />
           </TabsContent>
 
           {/* Billing Settings */}

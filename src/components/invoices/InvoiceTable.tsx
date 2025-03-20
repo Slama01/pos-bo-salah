@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
+import PrintInvoice from "@/components/print/PrintInvoice";
 import {
   Table,
   TableBody,
@@ -110,13 +111,6 @@ export function InvoiceTable() {
     });
   };
 
-  const handlePrintInvoice = (invoice: Invoice) => {
-    toast({
-      title: "طباعة الفاتورة",
-      description: `جاري إرسال الفاتورة ${invoice.id} للطباعة`,
-    });
-  };
-
   const handleSendInvoice = (invoice: Invoice) => {
     toast({
       title: "إرسال الفاتورة",
@@ -174,7 +168,7 @@ export function InvoiceTable() {
               <TableCell>{invoice.amount.toLocaleString()} ₪</TableCell>
               <TableCell>{getStatusBadge(invoice.status)}</TableCell>
               <TableCell>
-                <div className="flex space-x-2">
+                <div className="flex space-x-2 gap-2">
                   <Button
                     variant="outline"
                     size="sm"
@@ -183,6 +177,11 @@ export function InvoiceTable() {
                     <Eye className="h-4 w-4 ml-1" />
                     عرض
                   </Button>
+                  
+                  <PrintInvoice 
+                    invoiceId={invoice.id}
+                    customerName={invoice.customer}
+                  />
                   
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -196,10 +195,6 @@ export function InvoiceTable() {
                       <DropdownMenuItem onClick={() => handleDownloadInvoice(invoice)}>
                         <Download className="ml-2 h-4 w-4" />
                         <span>تحميل PDF</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handlePrintInvoice(invoice)}>
-                        <Printer className="ml-2 h-4 w-4" />
-                        <span>طباعة</span>
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleSendInvoice(invoice)}>
                         <Send className="ml-2 h-4 w-4" />
