@@ -12,15 +12,18 @@ interface CustomerDebt {
   customerId: string;
   customerName: string;
   amount: number;
+  remainingAmount: number;
   dueDate: string;
+  date: string;
   status: string;
+  description?: string;
 }
 
 // Context type definition
 interface DashboardContextType {
   dailySummary: DailySummary;
   customerDebts: CustomerDebt[];
-  updateDebtStatus: (id: string, status: string) => void;
+  updateDebtStatus: (id: string, status: string, paymentAmount?: number) => void;
 }
 
 // Create the context
@@ -35,9 +38,24 @@ export const DashboardProvider = ({ children }: { children: ReactNode }) => {
   
   const [customerDebts, setCustomerDebts] = useState<CustomerDebt[]>([]);
 
-  const updateDebtStatus = (id: string, status: string) => {
+  const updateDebtStatus = (id: string, status: string, paymentAmount?: number) => {
     setCustomerDebts(
-      customerDebts.map(debt => debt.id === id ? { ...debt, status } : debt)
+      customerDebts.map(debt => {
+        if (debt.id === id) {
+          // إذا تم تحديد مبلغ الدفع، فقم بخصمه من المبلغ المتبقي
+          if (paymentAmount && paymentAmount > 0) {
+            const newRemainingAmount = Math.max(0, debt.remainingAmount - paymentAmount);
+            return { 
+              ...debt, 
+              status, 
+              remainingAmount: newRemainingAmount 
+            };
+          }
+          // إذا لم يتم تحديد مبلغ الدفع، فقط قم بتحديث الحالة
+          return { ...debt, status };
+        }
+        return debt;
+      })
     );
   };
 
