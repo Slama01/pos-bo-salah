@@ -31,15 +31,15 @@ import {
 import { AddSaleForm } from '@/components/sales/AddSaleForm';
 import { SalesCart } from '@/components/sales/SalesCart';
 import { useToast } from "@/hooks/use-toast";
-import { useAppContext } from '@/contexts/AppContext';
+import { useApp } from '@/contexts/AppContext';
 
 const SalesPage = () => {
   const { toast } = useToast();
-  const { products, sales, setSales, processSale } = useAppContext();
+  const { products, sales, setSales, processSale } = useApp();
   
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isCartDialogOpen, setIsCartDialogOpen] = useState(false);
-  const [saleToDelete, setSaleToDelete] = useState<number | null>(null);
+  const [saleToDelete, setSaleToDelete] = useState<string | null>(null);
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
 
   const handleAddSale = () => {
@@ -58,26 +58,26 @@ const SalesPage = () => {
     }
   };
 
-  const handleDeleteSale = (id: number) => {
+  const handleDeleteSale = (id: string) => {
     setSaleToDelete(id);
     setIsDeleteAlertOpen(true);
   };
 
-  const handleViewInvoice = (saleId: number) => {
+  const handleViewInvoice = (saleId: string) => {
     const sale = sales.find(s => s.id === saleId);
     if (sale) {
       // إعداد بيانات الفاتورة
       const invoiceData = {
         number: `INV-${new Date().getFullYear()}-${String(sale.id).padStart(3, '0')}`,
         date: sale.date,
-        customerName: sale.customer,
-        total: sale.total,
+        customerName: sale.customer || "",
+        total: sale.totalAmount,
         products: sale.products,
       };
       
       toast({
         title: "عرض الفاتورة",
-        description: `تم فتح فاتورة العميل ${sale.customer}`,
+        description: `تم فتح فاتورة العميل ${sale.customer || ""}`,
       });
       
       // في النسخة الحقيقية يمكن توجيه المستخدم لصفحة الفاتورة

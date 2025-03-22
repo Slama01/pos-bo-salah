@@ -17,11 +17,11 @@ import SidebarLayout from '@/components/layouts/SidebarLayout';
 import StatCard from '@/components/dashboard/StatCard';
 import RecentSalesCard from '@/components/dashboard/RecentSalesCard';
 import InventoryAlertCard from '@/components/dashboard/InventoryAlertCard';
-import { useAppContext } from '@/contexts/AppContext';
+import { useApp } from '@/contexts/AppContext';
 
 const Index = () => {
   const { toast } = useToast();
-  const { products, sales, dailySummary } = useAppContext();
+  const { products, sales, dailySummary } = useApp();
 
   // حساب المنتجات ذات المخزون المنخفض (أقل من 10 قطع)
   const lowStockProducts = products.filter(product => product.stock < 10).length;

@@ -3,7 +3,7 @@ import React from 'react';
 import SidebarLayout from '@/components/layouts/SidebarLayout';
 import { Button } from '@/components/ui/button';
 import { Download, Upload, AlertTriangle } from 'lucide-react';
-import { useAppContext } from '@/contexts/AppContext';
+import { useApp } from '@/contexts/AppContext';
 import {
   Table,
   TableBody,
@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/table";
 
 const InventoryPage = () => {
-  const { products } = useAppContext();
+  const { products } = useApp();
 
   // تصنيف المنتجات حسب حالة المخزون
   const lowStockProducts = products.filter(product => product.stock < 10);

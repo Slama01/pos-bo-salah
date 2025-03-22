@@ -1,11 +1,12 @@
 
 import React, { useEffect, useState } from 'react';
-import { useAppContext } from '@/contexts/AppContext';
+import { useApp } from '@/contexts/AppContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Bell, BellOff, Settings, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { CustomerDebt } from '@/contexts/DashboardContext';
 
 interface Alert {
   id: number;
@@ -18,7 +19,7 @@ interface Alert {
 }
 
 const AlertSystem = () => {
-  const { products, customerDebts } = useAppContext();
+  const { products, customerDebts } = useApp();
   const { toast } = useToast();
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);

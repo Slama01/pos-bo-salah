@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -20,23 +19,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Product } from '@/contexts/ProductContext';
 
-// تعريف الأنواع
-export interface Product {
-  id: number;
-  name: string;
-  price: number;
-}
-
+// Define the cart product interface
 export interface CartProduct {
   id: number;
-  productId: number;
+  productId: string;  // Changed from number to string to match Product.id
   productName: string;
   quantity: number;
   price: number;
 }
 
-// مخطط التحقق
+// Schema validation
 const addProductSchema = z.object({
   productId: z.string().min(1, { message: "الرجاء اختيار منتج" }),
   quantity: z.coerce.number().min(1, { message: "الرجاء إدخال كمية صحيحة" }),
@@ -61,7 +55,7 @@ export function AddProductToCart({ products, onAddToCart }: AddProductToCartProp
   });
 
   const handleProductChange = (productId: string) => {
-    const product = products.find(p => p.id.toString() === productId);
+    const product = products.find(p => p.id === productId);
     setSelectedProduct(product || null);
     form.setValue("productId", productId);
   };
@@ -71,7 +65,7 @@ export function AddProductToCart({ products, onAddToCart }: AddProductToCartProp
 
     const cartItem: CartProduct = {
       id: Math.floor(Math.random() * 10000),
-      productId: parseInt(data.productId, 10),
+      productId: data.productId,
       productName: selectedProduct.name,
       quantity: data.quantity,
       price: selectedProduct.price,

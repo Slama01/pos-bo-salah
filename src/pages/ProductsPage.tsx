@@ -34,11 +34,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { useAppContext, Product } from '@/contexts/AppContext';
+import { useApp, Product } from '@/contexts/AppContext';
 
 const ProductsPage = () => {
   const { toast } = useToast();
-  const { products, setProducts } = useAppContext();
+  const { products, addProduct, updateProduct, deleteProduct } = useApp();
   
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -52,12 +52,12 @@ const ProductsPage = () => {
 
   // إضافة منتج جديد
   const handleAddProduct = () => {
-    const productToAdd = {
+    const productToAdd: Product = {
       ...newProduct,
-      id: products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1
+      id: Math.random().toString(36).substr(2, 9)
     };
     
-    setProducts([...products, productToAdd]);
+    addProduct(productToAdd);
     setNewProduct({ name: '', category: '', price: 0, stock: 0 });
     setIsAddDialogOpen(false);
     toast({
@@ -70,11 +70,7 @@ const ProductsPage = () => {
   const handleEditProduct = () => {
     if (!currentProduct) return;
     
-    const updatedProducts = products.map(product => 
-      product.id === currentProduct.id ? currentProduct : product
-    );
-    
-    setProducts(updatedProducts);
+    updateProduct(currentProduct);
     setIsEditDialogOpen(false);
     toast({
       title: "تم التعديل بنجاح",
@@ -83,9 +79,8 @@ const ProductsPage = () => {
   };
 
   // حذف منتج
-  const handleDeleteProduct = (id: number) => {
-    const updatedProducts = products.filter(product => product.id !== id);
-    setProducts(updatedProducts);
+  const handleDeleteProduct = (id: string) => {
+    deleteProduct(id);
     toast({
       title: "تم الحذف بنجاح",
       description: "تم حذف المنتج من قائمة المنتجات",

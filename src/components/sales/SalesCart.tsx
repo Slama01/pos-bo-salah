@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { AddProductToCart, CartProduct, Product } from './AddProductToCart';
+import { Product } from '@/contexts/ProductContext';
+import { AddProductToCart, CartProduct } from './AddProductToCart';
 import { CartItem } from './CartItem';
 import { useToast } from "@/hooks/use-toast";
 import { AlertTriangle } from 'lucide-react';
