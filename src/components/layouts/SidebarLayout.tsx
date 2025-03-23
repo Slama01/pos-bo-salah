@@ -14,7 +14,8 @@ import {
   Bell,
   Menu,
   LogOut,
-  UserCog
+  UserCog,
+  CreditCard
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -55,11 +56,13 @@ const SidebarLayout = ({ children }: SidebarLayoutProps) => {
     { label: "المبيعات", href: "/sales", icon: <ShoppingCart className="h-5 w-5" /> },
     { label: "المنتجات", href: "/products", icon: <Package className="h-5 w-5" /> },
     { label: "العملاء", href: "/customers", icon: <Users className="h-5 w-5" /> },
+    { label: "ديون العملاء", href: "/customer-debts", icon: <CreditCard className="h-5 w-5" /> },
     { label: "المخزون", href: "/inventory", icon: <ListChecks className="h-5 w-5" /> },
     { label: "الفواتير", href: "/invoices", icon: <Receipt className="h-5 w-5" /> },
     { label: "التنبيهات", href: "/alerts", icon: <Bell className="h-5 w-5" /> },
     { label: "المستخدمين", href: "/users", icon: <UserCog className="h-5 w-5" /> },
     { label: "الإعدادات", href: "/settings", icon: <Settings className="h-5 w-5" /> },
+    { label: "المساعدة", href: "/help", icon: <Bell className="h-5 w-5" /> },
   ];
 
   return (
